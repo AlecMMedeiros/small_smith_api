@@ -8,7 +8,7 @@ export default class ProductController {
     const product = req.body;
 
     const productCreated = await this.ProductService.create(product);
-    res.status(productCreated.code).json(productCreated.object);
+    res.status(productCreated.code).json(productCreated.object || productCreated.message);
   }
 
   async getAll(_req: Request, res: Response) {

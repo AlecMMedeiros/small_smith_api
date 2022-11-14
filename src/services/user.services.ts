@@ -3,6 +3,7 @@ import Joi from 'joi';
 import { IUser } from '../interfaces/IUser';
 import { ILogin } from '../interfaces/ILogin';
 import UserModel from '../models/user.model';
+import usersSchema from '../schemas/users.schema';
 
 const loginSchema = Joi.object({
   username: Joi.string().required().messages({
@@ -20,13 +21,22 @@ export default class UserService {
 
   public generateToken(user: IUser) {
     const payload = { 
-      username: user.username, classe: user.classe, level: user.level, passord: user.password,
+      id: user.id, 
+      username: user.username,
+      classe: user.classe,
+      level: user.level,
+      passord: user.password,
     }; 
     return this.jwt
       .sign(payload, process.env.JWT_SECRET as string, { algorithm: 'HS256', expiresIn: '1d' });
   }
 
   public async create(userData: IUser) {
+    const { error } = usersSchema.validate(userData);
+    if (error) {      
+      const code = error.message.includes('required') ? 400 : 422;
+      return { code, message: { message: error.details[0].message } };
+    } 
     const newUser = await this.user.create(userData);
     const token = this.generateToken(newUser);
     return { code: 201, object: { token } };

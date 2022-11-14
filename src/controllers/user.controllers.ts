@@ -9,7 +9,7 @@ export default class UserController {
     const user = req.body;
 
     const userCreated = await this.userService.create(user);
-    res.status(userCreated.code).json(userCreated.object);
+    res.status(userCreated.code).json(userCreated.object || userCreated.message);
   }
 
   async login(req: Request<object, object, ILogin>, res: Response) {
